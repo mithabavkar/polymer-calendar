@@ -1,0 +1,7 @@
+{
+  "name": "DemoApp",
+  "short_name": "DemoApp",
+  "description": "calendar component implementation",
+  "start_url": "/",
+  "display": "standalone"
+}

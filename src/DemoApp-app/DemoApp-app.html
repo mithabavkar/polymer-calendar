@@ -1,0 +1,255 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<dom-module id="calendar-app">
+  <template>
+    <style include="iron-flex iron-flex-alignment iron-flex-factors">
+      :host {
+        display: block;
+      }
+      .header-cell{
+        padding: 5px;
+        border: 1px solid black;
+      }
+      .cell-style{
+        max-height: 100px;
+        min-height: 100px;
+        overflow: auto;
+      }
+      .date-style{
+        text-align: right;
+      }
+      .current-date{
+        background: gray;
+        color: red;
+      }
+      .block-style{
+        border: 1px solid black;
+        border-radius: 5px;
+        padding: 5px;
+      }
+      .month-block{
+        font-size: 20px;
+        font-weight: bold;
+      }
+      .right{
+            text-align: right;
+      }
+    </style>
+    <div class="container">
+      <div class="layout horizontal">
+        <div class="flex-1">
+          <p class="month-block">[[todayObj]]</p>
+        </div>
+        <div class="flex-1 right">
+          <paper-button class="pink" on-click="next"><< Next</paper-button>
+          <paper-button class="pink" on-click="prev">Prev >></paper-button>
+        </div>
+      </div>
+      <!-- Header -->
+      <div class="layout horizontal" hidden$="[[isHeaderVisible]]">
+        <template is="dom-repeat" items="[[weekArray]]">
+          <div class="flex-1 header-cell">[[item]]</div>
+        </template>
+      </div>
+      <!-- body -->
+      <div class="layout horizontal">
+        <template is="dom-repeat" items="{{firstWeek}}" as="date">
+          <div class$="[[_getActiveDate(date)]] flex-1 header-cell cell-style">
+            <div class="date-style">{{date}}</div>
+            <template is="dom-repeat" items="{{value}}" as="data">
+              <div class="block-style" hidden$="{{_getSameData(data,date)}}">
+                <div class="flex-1" title="{{data.heading}}" on-click="_onCellHeaderClicked">{{data.heading}}</div>
+                <div class="flex-1 extra-containcer" title="{{data.Location}}" hidden$="{{!data.expand}}">{{data.Location}}</div>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+      <div class="layout horizontal">
+        <template is="dom-repeat" items="{{secondWeek}}" as="date">
+          <div class$="[[_getActiveDate(date)]] flex-1 header-cell cell-style">
+            <div class="date-style">{{date}}</div>
+            <template is="dom-repeat" items="{{value}}" as="data">
+              <div hidden$="{{_getSameData(data,date)}}">
+                <div class="flex-1" on-click="">{{data.heading}}</div>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+      <div class="layout horizontal">
+        <template is="dom-repeat" items="{{threeWeek}}" as="date">
+          <div class$="[[_getActiveDate(date)]] flex-1 header-cell cell-style">
+            <div class="date-style">{{date}}</div>
+            <template is="dom-repeat" items="{{value}}" as="data">
+              <div hidden$="{{_getSameData(data,date)}}">
+                <div class="flex-1">{{data.heading}}</div>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+      <div class="layout horizontal">
+        <template is="dom-repeat" items="{{fourWeek}}" as="date">
+          <div class$="[[_getActiveDate(date)]] flex-1 header-cell cell-style">
+            <div class="date-style">{{date}}</div>
+            <template is="dom-repeat" items="{{value}}" as="data">
+              <div hidden$="{{_getSameData(data,date)}}">
+                <div class="flex-1">{{data.heading}}</div>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+      <div class="layout horizontal">
+        <template is="dom-repeat" items="{{fiveWeek}}" as="date">
+          <div class$="[[_getActiveDate(date)]] flex-1 header-cell cell-style">
+            <div class="date-style">{{date}}</div>
+            <template is="dom-repeat" items="{{value}}" as="data">
+              <div hidden$="{{_getSameData(data,date)}}">
+                <div class="flex-1">{{data.heading}}</div>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class CalendarApp extends Polymer.Element {
+      static get is() { return 'calendar-app'; }
+      static get properties() {
+        return {
+          prop1: {
+            type: String,
+            value: 'DemoApp-app'
+          },
+          today:{
+            type:String,
+            value:''
+          },
+          currentDate:{
+            type:String,
+            value:''
+          },
+          weekArray:{
+            type:Array,
+            value:[]
+          },
+          isHeaderVisible:{
+            type:Boolean,
+            value:true
+          }
+        };
+      }
+      ready(){
+        super.ready();
+        this.value = [{"date":"2-May-2018","heading":"ABC","Location":"Mumbai"},{"date":"2-May-2018","heading":"GHJ","Location":"Pune"},{"date":"3-May-2018","heading":"KLJ","Location":"Pune"},{"date":"2-May-2018","heading":"BHUSHAN","Location":"Nagpur"},{"date":"2-May-2018","heading":"BHUSHAN1","Location":"Kalyan"},{"date":"1-May-2018","heading":"JONE","Location":"Thane"},{"date":"4-May-2018","heading":"JEMS","Location":"Pune"},{"date":"5-May-2018","heading":"ROBERTA","Location":"ROME"},{"date":"6-May-2018","heading":"ROBERTA JR.","Location":"SAN POULO"},{"date":"7-May-2018","heading":"JR. FRANK","Location":"NY"},{"date":"8-May-2018","heading":"SR. FRANK","Location":"NY"},{"date":"9-May-2018","heading":"KALP","Location":"UK"},{"date":"10-May-2018","heading":"PLK","Location":"Pune"},{"date":"2-May-2018","heading":"BHUSHAN3","Location":"Nagpur"},{"date":"2-May-2018","heading":"BHUSHAN4","Location":"Nagpur"},{"date":"2-May-2018","heading":"BHUSHAN5","Location":"Nagpur"}];
+        this.initCalendarStructure();
+      }
+      initCalendarStructure(date){
+        //today's date/month
+        this.selectedDateObj = date ? moment(date) : moment();
+        this.todayObj = date ? moment(date).format('MMM YYYY') : moment().format('MMM YYYY');
+        this.currentDate = date ? moment(date).format('MMM, DD YYYY') : moment().format('MMM, DD YYYY');
+        //list of weeks
+        this.weekArray = moment.weekdays();
+        //list 
+        let daysInMonth = date ? moment(date).daysInMonth() : moment().daysInMonth();
+        let arrDaysCollection = [];
+        while(daysInMonth) {
+          var current = date ? moment(date).date(daysInMonth) : moment().date(daysInMonth);
+          arrDaysCollection.push(moment(current).format('MMM, DD YYYY'));
+          daysInMonth--;
+        }
+        this.arryDays = arrDaysCollection.reverse();
+        //divide into week structure
+        //week first
+        this.collectionOfDayWeekWise = {};
+        let isFirstWeek = false;
+        let isSecondWeek = false;
+        let isThreeWeek = false;
+        let isFourWeek = false;
+        let isFiveWeek = false;
+        //let firstWeekAry = [];
+        this.firstWeek=[];
+        this.secondWeek=[];
+        this.threeWeek=[];
+        this.fourWeek=[];
+        this.fiveWeek=[];
+        for(let i=0; i < this.arryDays.length; i++){
+          let day = moment(this.arryDays[i]).day();
+          if(day >= 0 && day <= 6){
+            //check day is week end or not
+            if(!isFirstWeek){
+                this.firstWeek.push(this.arryDays[i]);
+                isFirstWeek = day == 6 && true || false;
+            }else if(isFirstWeek && !isSecondWeek){
+                this.secondWeek.push(this.arryDays[i]);
+                isSecondWeek = day == 6 && true || false;
+            }else  if(isFirstWeek && isSecondWeek && !isThreeWeek){
+              this.threeWeek.push(this.arryDays[i]);
+              isThreeWeek = day == 6 && true || false;
+            }else if(isFirstWeek && isSecondWeek && isThreeWeek && !isFourWeek){
+              this.fourWeek.push(this.arryDays[i]);
+              isFourWeek = day == 6 && true || false;
+            }else if(isFirstWeek && isSecondWeek && isThreeWeek && isFourWeek && !isFiveWeek){
+              this.fiveWeek.push(this.arryDays[i]);
+              isFiveWeek = day == 6 && true || false;
+            }
+          }
+        }
+        //checking weekdays
+        if(this.firstWeek.length<7){
+          let remaining = 7 - this.firstWeek.length;
+          for(let k=0;k < remaining;k++){
+              this.firstWeek.unshift(' ');
+          }
+        }
+        if(this.fiveWeek.length<7){
+          let remaining = 7 - this.fiveWeek.length;
+          for(let k=0;k < remaining;k++){
+              this.fiveWeek.push(' ');
+          }
+        }
+      }
+      _getActiveDate(data){
+        if(data === this.currentDate){
+          return 'current-date';
+        }
+        return '';
+      }
+      _getSameData(date,currentDate){
+        if(Object.keys(date).length>0 && currentDate.trim()){
+          let formatedDate = moment(date.date,"DD-MMM-YYYY").format("MMM, DD YYYY");
+          date.expand=false;
+          return formatedDate === currentDate ?  false : true;
+        }else{
+          return true;
+        }
+      }
+      _onCellHeaderClicked(e){
+        e.currentTarget.parentElement.querySelector('.extra-containcer').hidden = e.currentTarget.parentElement.querySelector('.extra-containcer').hidden ? false : true;
+      }
+      prev(e){
+        console.log('prev');
+        let month = moment(this.selectedDateObj).add(1, 'months');
+        this.initCalendarStructure(month);
+      }
+      next(e){
+        console.log('next');
+        let month = moment(this.selectedDateObj).add(-1, 'months');
+        this.initCalendarStructure(month);
+      }
+    }
+    window.customElements.define(CalendarApp.is, CalendarApp);
+  </script>
+</dom-module>
